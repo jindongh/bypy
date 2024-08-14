@@ -301,6 +301,7 @@ class ByPy(object):
 		checkssl = True,
 		cacerts = None,
 		rapiduploadonly = False,
+		skiprapidupload = False,
 		mirror = '',
 		selectmirror = False,
 		resumedl_revertcount = const.DefaultResumeDlRevertCount,
@@ -379,6 +380,7 @@ class ByPy(object):
 			self._ondup = 'O' # O - Overwrite* S - Skip P - Prompt
 		self._followlink = followlink
 		self._rapiduploadonly = rapiduploadonly
+		self._skiprapidupload = skiprapidupload
 		self._resumedl_revertcount = resumedl_revertcount
 		self._deletesource = deletesource
 		if deletesource:
@@ -1836,7 +1838,7 @@ get information of the given path (dir / file) at Baidu Yun.
 		self._current_file_size = getfilesize(localpath)
 
 		result = const.ENoError
-		if self._current_file_size > const.MinRapidUploadFileSize:
+		if not self._skiprapidupload and self._current_file_size > const.MinRapidUploadFileSize:
 			self.pd("'{}' is being RapidUploaded.".format(self._current_file))
 			result = self._rapidupload_file(localpath, remotepath, ondup)
 			if result == const.ENoError:
@@ -3643,6 +3645,9 @@ def getparser():
 	parser.add_argument("--rapid-upload-only",
 		dest="rapiduploadonly", action="store_true",
 		help="only upload large files that can be rapidly uploaded")
+	parser.add_argument("--skip-rapid-upload",
+		dest="skiprapidupload", action="store_true",
+		help="skip upload large files using rapidly upload")
 	parser.add_argument("--resume-download-revert-back",
 		dest="resumedl_revertcount", default=const.DefaultResumeDlRevertCount,
 		type=int, metavar='RCOUNT',
@@ -3828,6 +3833,7 @@ def main(argv=None): # IGNORE:C0111
 			'checkssl': args.checkssl,
 			'cacerts': args.cacerts,
 			'rapiduploadonly': args.rapiduploadonly,
+			'skiprapidupload': args.skiprapidupload,
 			'mirror': args.mirror,
 			'selectmirror': args.selectmirror,
 			'configdir': args.configdir,
